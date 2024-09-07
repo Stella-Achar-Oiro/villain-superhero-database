@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Villain's Superhero Database</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div>
+            <h1>Villain's Superhero Database</h1>
+        </div>
+
+        <div class="controls">
+            <select id="pageSize">
+                <option value="10">10 per page</option>
+                <option value="20" selected>20 per page</option>
+                <option value="50">50 per page</option>
+                <option value="100">100 per page</option>
+                <option value="all">All results</option>
+            </select>
+            <input type="text" id="searchInput" placeholder="Search heroes...">
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th data-column="name">Name</th>
+                    <th data-column="biography.fullName">Full Name</th>
+                    <th data-column="powerstats.intelligence">Powerstats</th>
+                    <th data-column="appearance.race">Race</th>
+                    <th data-column="appearance.gender">Gender</th>
+                    <th data-column="appearance.height">Height</th>
+                    <th data-column="appearance.weight">Weight</th>
+                    <th data-column="biography.placeOfBirth">Place of Birth</th>
+                    <th data-column="biography.alignment">Alignment</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <div class="pagination">
+            <button class="prev">Previous</button>
+            <span id="currentPage"></span>
+            <button class="next">Next</button>
+        </div>
+    </div>
+
+    <div id="heroModal" class="modal">
+        <div class="modal-content">
+            <span class="close">×</span>
+            <div id="heroDetails"></div>
+        </div>
+    </div>
+
+    <script src="/script.js"></script>
+</body>
+</html>
