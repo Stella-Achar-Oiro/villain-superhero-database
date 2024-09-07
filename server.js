@@ -11,7 +11,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Handle routing for detailed views
+// Handle routing for detailed views, sending back the main HTML file
 app.get('/hero/:id', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
