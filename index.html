@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superhero Database</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Superhero Database</h1>
+            <div class="header-controls">
+                <button id="darkModeToggle" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="filterToggle" aria-label="Toggle filters">
+                    <i class="fas fa-filter"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+    <main class="container">
+        <div class="search-container">
+            <div class="search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchBar" placeholder="Search superheroes...">
+            </div>
+            <div id="filterPanel" class="hidden">
+                <h3>Filters</h3>
+                <div class="filter-group">
+                    <label for="alignmentFilter">Alignment:</label>
+                    <select id="alignmentFilter">
+                        <option value="">All</option>
+                        <option value="good">Good</option>
+                        <option value="bad">Bad</option>
+                        <option value="neutral">Neutral</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="genderFilter">Gender:</label>
+                    <select id="genderFilter">
+                        <option value="">All</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="publisherFilter">Publisher:</label>
+                    <select id="publisherFilter">
+                        <option value="">All</option>
+                        <!-- Publishers will be dynamically populated -->
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div id="loadingIndicator" class="hidden">
+            <div class="spinner"></div>
+            <p>Loading superheroes...</p>
+        </div>
+        <div id="errorMessage" class="hidden"></div>
+        <div class="table-controls">
+            <div class="page-size-control">
+                <label for="pageSizeSelect">Page Size:</label>
+                <select id="pageSizeSelect">
+                    <option value="10">10</option>
+                    <option value="20" selected>20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="all">All</option>
+                </select>
+            </div>
+        </div>
+        <div class="table-container">
+            <table id="superheroTable">
+                <thead>
+                    <tr>
+                        <th>Icon</th>
+                        <th data-sort="name">Name</th>
+                        <th data-sort="fullName">Full Name</th>
+                        <th data-sort="intelligence">Intelligence</th>
+                        <th data-sort="strength">Strength</th>
+                        <th data-sort="speed">Speed</th>
+                        <th data-sort="durability">Durability</th>
+                        <th data-sort="power">Power</th>
+                        <th data-sort="combat">Combat</th>
+                        <th data-sort="race">Race</th>
+                        <th data-sort="gender">Gender</th>
+                        <th data-sort="height">Height</th>
+                        <th data-sort="weight">Weight</th>
+                        <th data-sort="placeOfBirth">Place of Birth</th>
+                        <th data-sort="alignment">Alignment</th>
+                    </tr>
+                </thead>
+                <tbody id="superheroTableBody">
+                    <!-- Table rows will be dynamically populated -->
+                </tbody>
+            </table>
+        </div>
+        <div id="paginationControls" class="hidden">
+            <button id="prevPageBtn">Previous</button>
+            <span id="currentPageIndicator"></span>
+            <button id="nextPageBtn">Next</button>
+        </div>
+    </main>
+    <button id="backToTop" class="hidden" aria-label="Back to top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- Modal for detail view -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="detailContent"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
