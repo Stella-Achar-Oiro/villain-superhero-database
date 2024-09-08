@@ -1,8 +1,9 @@
 let heroes = [];
-let currentPage = 1;
-let pageSize = 20;
 let sortColumn = 'name';
 let sortDirection = 'asc';
+let searchTerm = '';
+let currentPage = 1;
+let pageSize = 20;
 
 const loadData = (data) => {
   heroes = data;
@@ -13,13 +14,8 @@ const loadData = (data) => {
 
 const renderTable = () => {
   const tableBody = document.getElementById('heroesTableBody');
-  const searchTerm = document.getElementById('search').value.toLowerCase();
   
-  const filteredHeroes = heroes.filter(hero =>
-    hero.name.toLowerCase().includes(searchTerm) ||
-    hero.biography.fullName.toLowerCase().includes(searchTerm)
-  );
-  
+  const filteredHeroes = filterHeroes();
   const sortedHeroes = sortHeroes(filteredHeroes);
   const paginatedHeroes = paginateHeroes(sortedHeroes);
   
@@ -44,15 +40,33 @@ const renderTable = () => {
   });
 };
 
+const filterHeroes = () => {
+  const searchField = document.getElementById('searchField').value;
+  return heroes.filter(hero => {
+    if (searchTerm === '') return true;
+    if (searchField === 'all') {
+      return Object.values(hero).some(value => 
+        typeof value === 'string' && value.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    } else {
+      const value = searchField === 'fullName' ? hero.biography.fullName : hero[searchField];
+      return typeof value === 'string' && value.toLowerCase().includes(searchTerm.toLowerCase());
+    }
+  });
+};
+
 const sortHeroes = (heroesToSort) => {
   return heroesToSort.sort((a, b) => {
     let valueA, valueB;
     
     switch(sortColumn) {
       case 'name':
-      case 'fullName':
         valueA = a.name.toLowerCase();
         valueB = b.name.toLowerCase();
+        break;
+      case 'fullName':
+        valueA = a.biography.fullName.toLowerCase();
+        valueB = b.biography.fullName.toLowerCase();
         break;
       case 'race':
         valueA = (a.appearance.race || '').toLowerCase();
@@ -91,14 +105,16 @@ const sortHeroes = (heroesToSort) => {
 };
 
 const paginateHeroes = (sortedHeroes) => {
+  if (pageSize === 'all') return sortedHeroes;
   const start = (currentPage - 1) * pageSize;
-  const end = pageSize === 'all' ? sortedHeroes.length : start + pageSize;
+  const end = start + pageSize;
   return sortedHeroes.slice(start, end);
 };
 
 const setupPagination = () => {
   const paginationContainer = document.getElementById('pagination');
-  const totalPages = pageSize === 'all' ? 1 : Math.ceil(heroes.length / pageSize);
+  const filteredHeroes = filterHeroes();
+  const totalPages = pageSize === 'all' ? 1 : Math.ceil(filteredHeroes.length / pageSize);
   
   paginationContainer.innerHTML = '';
   
@@ -111,6 +127,7 @@ const setupPagination = () => {
     button.addEventListener('click', () => {
       currentPage = i;
       renderTable();
+      setupPagination();
       updateURL();
     });
     paginationContainer.appendChild(button);
@@ -123,7 +140,7 @@ const showHeroDetails = (hero) => {
   
   heroDetails.innerHTML = `
     <h2>${hero.name}</h2>
-    <img src="${hero.images.md}" alt="${hero.name}" width="200">
+    <img src="${hero.images.md}" alt="${hero.name}">
     <p><strong>Full Name:</strong> ${hero.biography.fullName}</p>
     <p><strong>Alias:</strong> ${hero.biography.aliases.join(', ')}</p>
     <p><strong>Publisher:</strong> ${hero.biography.publisher}</p>
@@ -133,30 +150,52 @@ const showHeroDetails = (hero) => {
     <p><strong>Gender:</strong> ${hero.appearance.gender}</p>
     <p><strong>Height:</strong> ${hero.appearance.height.join(', ')}</p>
     <p><strong>Weight:</strong> ${hero.appearance.weight.join(', ')}</p>
+    <p><strong>Eye Color:</strong> ${hero.appearance.eyeColor}</p>
+    <p><strong>Hair Color:</strong> ${hero.appearance.hairColor}</p>
     <p><strong>Place of Birth:</strong> ${hero.biography.placeOfBirth}</p>
     <p><strong>Alignment:</strong> ${hero.biography.alignment}</p>
+    <p><strong>Occupation:</strong> ${hero.work.occupation}</p>
+    <p><strong>Base:</strong> ${hero.work.base}</p>
+    <p><strong>Group Affiliation:</strong> ${hero.connections.groupAffiliation}</p>
+    <p><strong>Relatives:</strong> ${hero.connections.relatives}</p>
   `;
   
   modal.style.display = 'block';
 };
 
-document.querySelector('.close').addEventListener('click', () => {
-  document.getElementById('heroModal').style.display = 'none';
-});
-
 const updateURL = () => {
-  const queryString = `?page=${currentPage}&size=${pageSize}&sort=${sortColumn}&direction=${sortDirection}`;
-  window.history.replaceState(null, '', queryString);
+  const params = new URLSearchParams({
+    sort: sortColumn,
+    direction: sortDirection,
+    search: searchTerm,
+    page: currentPage,
+    pageSize: pageSize
+  });
+  window.history.replaceState({}, '', `${window.location.pathname}?${params}`);
 };
 
-// Initial Fetch
-fetch('https://rawcdn.githack.com/akabab/superhero-api/0.2.0/api/all.json')
-  .then((response) => response.json())
-  .then(loadData);
+const loadFromURL = () => {
+  const params = new URLSearchParams(window.location.search);
+  sortColumn = params.get('sort') || 'name';
+  sortDirection = params.get('direction') || 'asc';
+  searchTerm = params.get('search') || '';
+  currentPage = parseInt(params.get('page')) || 1;
+  pageSize = params.get('pageSize') || '20';
+
+  document.getElementById('search').value = searchTerm;
+  document.getElementById('pageSize').value = pageSize;
+};
 
 // Event Listeners
-document.getElementById('search').addEventListener('input', () => {
+document.getElementById('search').addEventListener('input', (event) => {
+  searchTerm = event.target.value;
   currentPage = 1;
+  renderTable();
+  setupPagination();
+  updateURL();
+});
+
+document.getElementById('searchField').addEventListener('change', () => {
   renderTable();
   setupPagination();
   updateURL();
@@ -180,7 +219,16 @@ document.querySelectorAll('th').forEach(th => {
       sortDirection = 'asc';
     }
     renderTable();
-    setupPagination();
     updateURL();
   });
 });
+
+document.querySelector('.close').addEventListener('click', () => {
+  document.getElementById('heroModal').style.display = 'none';
+});
+
+// Initial load
+loadFromURL();
+fetch('https://rawcdn.githack.com/akabab/superhero-api/0.2.0/api/all.json')
+  .then((response) => response.json())
+  .then(loadData);
